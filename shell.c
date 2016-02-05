@@ -7,7 +7,8 @@ int search_char(char *line, size_t size, unsigned int start, char ch);
 bool complete_line(char *line, size_t size);
 void parse_and_exec(char *line, size_t size);
 
-const bool debug = true;
+const bool debug = false;
+const char prompt = '$';
 
 int main(void) {
   char *line = NULL;
@@ -23,6 +24,8 @@ int main(void) {
       printf("%s", "[DEBUG]: ");
       printf("%s", "Entering outer while\n");
     }
+
+    printf("%c ", prompt);
 
     while (true) { // inputs parts of commands forever
       if (getline(&line, &size, stdin) == -1 && prev_size == 0) {
@@ -44,16 +47,11 @@ int main(void) {
         if (debug) {
           printf("%s", "[DEBUG]: ");
           printf("%s", "Previous line:\n");
-          printf("%s", "[DEBUG]: ");
-          printf("%s", prev_line);
-          printf("%s", "[DEBUG]: ");
-          printf("%s", "Current line:\n");
-          printf("%s", "[DEBUG]: ");
-          printf("%s", line);
-          printf("%s", "[DEBUG]: ");
-          printf("%s", "str:\n");
-          printf("%s", "[DEBUG]: ");
-          printf("%s", str);
+          printf("    %s", prev_line);
+          printf("  %s", "Current line:\n");
+          printf("    %s", line);
+          printf("  %s", "str:\n");
+          printf("    %s", str);
         }
 
         if (complete_line(str, size + prev_size)) {
@@ -141,15 +139,21 @@ bool complete_line(char *line, size_t size) {
   if (debug) {
     printf("%s", "[DEBUG]: ");
     printf("%s", "complete_line called\n");
+    printf("%s: %s, %s: %i\n", "line", line, "size", size);
   }
 
   int end;
 
   for (unsigned int i = 0; i < size; ++i) {
+    if (debug) {
+      printf("%s", "[DEBUG]: ");
+      printf("%s: %c\n", "current char", line[i]);
+    }
+
     if (line[i] == '\'' || line[i] == '"') {
       if (i == 0) {
         if ((end = search_char(line, size, i+1, line[i])) > -1) {
-          i = end - 1;
+          i = end;
         } else {
           return false;
         }
@@ -159,18 +163,19 @@ bool complete_line(char *line, size_t size) {
           if (debug) {
             printf("[DEBUG]: ");
             printf("end: %d\n", end);
-            printf("[DEBUG]: ");
-            printf("i: %d\n", i);
-            printf("[DEBUG]: ");
-            printf("char@i: %c\n", line[i]);
+            printf("  i: %d\n", i);
+            printf("  char@i: %c\n", line[i]);
           }
         } else {
           return false;
         }
       }
-    } else if (i == size - 1 && i > 0 && line[i] == '\\' && line[i-1] != '\\') {
+    } else if (i < size - 2 && line[i] == '\\' &&
+               line[i+1] == '\n' && line[i+2] == '\0') {
       return false;
-    } else if (i == size - 1 && i == 0 && line[i] == '\\') {
+    } else if (i == size - 2 && line[i] == '\\' && line[i+1] == '\n') {
+      return false;
+    } else if (i == size - 1 && line[i] == '\\') {
       return false;
     }
   }
