@@ -40,7 +40,7 @@ bool truthy(node *e, stack *stk) {
   return truthy_value(tmp->val);
 }
 
-node *self(node *self, node *left, node *right) {
+node *self(node *self, node *left, node *right, stack *_stk) {
   // returns a copy of the node so as not to overwrite nodes in the execution tree
   node *tmp;
 
@@ -48,7 +48,7 @@ node *self(node *self, node *left, node *right) {
   return tmp;
 }
 
-node *equals(node *_, node *left, node *right) {
+node *equals(node *_, node *left, node *right, stack *_stk) {
   // returns a new node containing the value resulting from left == right
   node *tmp;
 
@@ -59,6 +59,6 @@ node *equals(node *_, node *left, node *right) {
   return tmp;
 }
 
-node *get_var(node *self, node *left, node *right, stack *stk) {
+node *get_var(node *self, node *_left, node *_right, stack *stk) {
   value v = stack_search(stk, (char*)(self->val.val));
 }
