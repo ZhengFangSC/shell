@@ -2,12 +2,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include "parser.h"
 
-int search_char(char *line, size_t size, unsigned int start, char ch);
-bool complete_line(char *line, size_t size);
-void parse_and_exec(char *line, size_t size);
-
-const bool debug = false;
 const char prompt = '$';
 
 int main(void) {
@@ -110,83 +106,4 @@ int main(void) {
   }
 
   return 0;
-}
-
-int search_char(char *line, size_t size, unsigned int start, char ch) {
-  // returns -1 if char ch not found, returns positive int of index of found char
-  if (debug) {
-    printf("%s", "[DEBUG]: ");
-    printf("%s %c\n", "search_char called on ", ch);
-
-    for (unsigned int i = start; i < size; ++i) {
-      printf("%c", line[i]);
-    }
-  }
-
-  for (unsigned int i = start; i < size; ++i) {
-    if (line[i] == ch && i == 0) {
-      return i;
-    } else if (line[i] == ch && line[i-1] != '\\') {
-      return i;
-    }
-  }
-
-  return -1;
-}
-
-bool complete_line(char *line, size_t size) {
-  // returns true if line is 'valid', meaning there are no open quotes or trailing backslashes
-  if (debug) {
-    printf("%s", "[DEBUG]: ");
-    printf("%s", "complete_line called\n");
-    printf("%s: %s, %s: %i\n", "line", line, "size", size);
-  }
-
-  int end;
-
-  for (unsigned int i = 0; i < size; ++i) {
-    if (debug) {
-      printf("%s", "[DEBUG]: ");
-      printf("%s: %c\n", "current char", line[i]);
-    }
-
-    if (line[i] == '\'' || line[i] == '"') {
-      if (i == 0) {
-        if ((end = search_char(line, size, i+1, line[i])) > -1) {
-          i = end;
-        } else {
-          return false;
-        }
-      } else if (i > 0 && line[i-1] != '\\') {
-        if ((end = search_char(line, size, i+1, line[i])) > -1) {
-          i = end;
-          if (debug) {
-            printf("[DEBUG]: ");
-            printf("end: %d\n", end);
-            printf("  i: %d\n", i);
-            printf("  char@i: %c\n", line[i]);
-          }
-        } else {
-          return false;
-        }
-      }
-    } else if (i < size - 2 && line[i] == '\\' &&
-               line[i+1] == '\n' && line[i+2] == '\0') {
-      return false;
-    } else if (i == size - 2 && line[i] == '\\' && line[i+1] == '\n') {
-      return false;
-    } else if (i == size - 1 && line[i] == '\\') {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-void parse_and_exec(char *line, size_t size) {
-  if (debug) {
-    printf("%s", "[DEBUG]: ");
-    printf("%s", "This will be taken care of later\n");
-  }
-  printf("%s", line);
 }
