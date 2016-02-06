@@ -1,7 +1,7 @@
 #include <stdbool.h>
 
-#ifndef INCLUDED
-#define INCLUDED 1
+#ifndef LANGUAGE_TYPE_H_INCLUDED
+#define LANGUAGE_TYPE_H_INCLUDED 1
 
 
 enum types {
@@ -29,4 +29,4 @@ value assign_bool(bool b);
 bool truthy_value(value v);
 bool equal(value v1, value v2);
 
-#endif
+#endif /* LANGUAGE_TYPE_H_INCLUDED */
