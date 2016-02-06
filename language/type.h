@@ -9,7 +9,8 @@ enum types {
   st,
   in,
   db,
-  bo
+  bo,
+  va
 };
 
 typedef enum types type;

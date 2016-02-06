@@ -30,12 +30,12 @@ node *set_bool(node *e, bool b) {
   return e;
 }
 
-node *exec(node *e) { // used to execuate the tree
-  return (node *) e->function(e, exec(e->left), exec(e->right));
+node *exec(node *e, stack *stk) { // used to execuate the tree
+  return (node *) e->function(e, exec(e->left, stk), exec(e->right, stk), stk);
 }
 
-bool truthy(node *e) {
-  node* tmp = exec(e);
+bool truthy(node *e, stack *stk) {
+  node* tmp = exec(e, stk);
 
   return truthy_value(tmp->val);
 }
@@ -57,4 +57,8 @@ node *equals(node *_, node *left, node *right) {
   tmp->right = right;
 
   return tmp;
+}
+
+node *get_var(node *self, node *left, node *right, stack *stk) {
+  value v = stack_search(stk, (char*)(self->val.val));
 }

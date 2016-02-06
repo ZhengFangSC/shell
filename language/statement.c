@@ -7,13 +7,13 @@ stack *block(stmt **s, unsigned int size, stack* stk) {
 }
 
 stack *while_loop(stmt *s, stack *stk) {
-  while (truthy(exec(s->expr))) {
+  while (truthy(s->expr, stk)) {
     stk = eval(s->stmt1[0], stk);
   }
 }
 
 stack *if_stmt(stmt *s, stack *stk) {
-  if (truthy(s->expr)) {
+  if (truthy(s->expr, stk)) {
     return block(s->stmt1, s->size1, stk);
   } else {
     return block(s->stmt2, s->size2, stk);
@@ -21,13 +21,13 @@ stack *if_stmt(stmt *s, stack *stk) {
 }
 
 stack *assign(stmt *s, char *str, stack *stk) {
-  node *tmp = exec(s->expr);
+  node *tmp = exec(s->expr, stk);
   stack_assign(stk, str, tmp->val);
   return stk;
 }
 
 stack *declare(stmt *s,char *str, stack *stk) {
-  node *tmp = exec(s->expr);
+  node *tmp = exec(s->expr, stk);
   return stack_declare(stk, str, tmp->val);
 }
 
