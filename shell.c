@@ -2,8 +2,10 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "parser.h"
 
+extern char **environ;
 const char prompt = '$';
 
 int main(void) {
@@ -59,6 +61,7 @@ int main(void) {
           }
 
           prev_size = 0;
+          free(prev_line);
           prev_line = NULL;
 
           parse_and_exec(str, size + prev_size);
@@ -72,10 +75,12 @@ int main(void) {
           }
 
           prev_size = size + prev_size;
+          free(prev_line);
           prev_line = (char *) malloc(sizeof(char) * (prev_size));
           memset(prev_line, 0, prev_size);
 
           strcpy(prev_line, str);
+          free(str);
         }
       } else {
         if (complete_line(line, size)) {
@@ -97,9 +102,11 @@ int main(void) {
           }
 
           prev_size = size;
+          free(prev_line);
           prev_line = (char *) malloc(sizeof(char) * size);
           memset(prev_line, 0, size);
           strcpy(prev_line, line);
+          free(line);
         }
       }
     }
