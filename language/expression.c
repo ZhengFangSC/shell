@@ -36,13 +36,12 @@ node *exec(node *e, stack *stk) { // used to execuate the tree
 
 bool truthy(node *e, stack *stk) {
   node* tmp = exec(e, stk);
-
   return truthy_value(tmp->val);
 }
 
 node *self(node *self, node *left, node *right, stack *_stk) {
   // returns a copy of the node so as not to overwrite nodes in the execution tree
-  node *tmp;
+  node *tmp = malloc(sizeof(node));
 
   tmp->val = self->val;
   return tmp;
@@ -50,7 +49,7 @@ node *self(node *self, node *left, node *right, stack *_stk) {
 
 node *equals(node *_, node *left, node *right, stack *_stk) {
   // returns a new node containing the value resulting from left == right
-  node *tmp;
+  node *tmp = malloc(sizeof(node));
 
   tmp->val = assign_bool(equal(left->val, right->val));
   tmp->left = left;
@@ -60,5 +59,7 @@ node *equals(node *_, node *left, node *right, stack *_stk) {
 }
 
 node *get_var(node *self, node *_left, node *_right, stack *stk) {
-  value v = stack_search(stk, (char*)(self->val.val));
+  node *tmp = malloc(sizeof(node));
+  tmp->val = stack_search(stk, (char*)(self->val.val));
+  return tmp;
 }

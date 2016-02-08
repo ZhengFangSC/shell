@@ -4,12 +4,16 @@ stack *block(stmt **s, unsigned int size, stack* stk) {
   for (unsigned int i = 0; i < size; ++i) {
     stk = eval(s[i], stk);
   }
+
+  return stk;
 }
 
 stack *while_loop(stmt *s, stack *stk) {
   while (truthy(s->expr, stk)) {
     stk = eval(s->stmt1[0], stk);
   }
+
+  return stk;
 }
 
 stack *if_stmt(stmt *s, stack *stk) {

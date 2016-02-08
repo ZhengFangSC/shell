@@ -27,7 +27,7 @@ value stack_search(stack *s, char *c) {
 }
 
 stack *stack_declare(stack *s, char *c, value val) {
-  stack *tmp;
+  stack *tmp = malloc(sizeof(stack));
   tmp->val = val;
   tmp->below = s;
   return tmp;
