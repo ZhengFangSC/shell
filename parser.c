@@ -41,6 +41,7 @@ int search_char(char *line, unsigned int start, char ch) {
 char *substring(char *line, unsigned int start, unsigned int end) {
   printf("Allocating space for substring\n");
   char *str = malloc(sizeof(char) * (end+1 - start));
+  memset(str, 0, (end+1 - start));
   printf("Space Allocated\n");
 
   strncpy(str, line + start, end - start);
@@ -48,7 +49,7 @@ char *substring(char *line, unsigned int start, unsigned int end) {
   printf("Substring[end]: %c\n", str[end]);
   printf("Substring length: %zu\n", strlen(str));
   printf("Substring: %s\n", str);
-  str[end] = '\0';
+  *(str + end) = '\0';
   printf("Substring after nullchar added: %s\n", str);
 
   return str;
@@ -201,41 +202,14 @@ parse_info *execute(char *line, unsigned int start, unsigned int end) {
       printf("ptr->length: %i\n", ptr->length);
 
       char *command = *(ptr->args);
+      printf("executing command: %s\n with arguments: ", get_path(command));
 
-      if (ptr->length > 1) {
-        printf("executing command: %s\n with arguments: ", get_path(command));
-
-        char *arguments[ptr->length - 1];
-        for (int i = 0; i < ptr->length - 1; ++i) {
-          arguments[i] = *(ptr->args + 1 + i);
-
-          if (i < ptr->length - 2) {
-            printf("%s ", arguments[i]);
-          } else {
-            printf("%s\n", arguments[i]);
-          }
-        }
-
-        execvp(command, arguments);
-        p_inf->return_data = malloc(sizeof(char) * (strlen("Result of execvp") + 1));
-        strcpy(p_inf->return_data, "Result of execvp");
-        p_inf->complete = true;
-        p_inf->end_point = strlen(p_inf->return_data);
-
-        for (unsigned int i = 0; i < ptr->length - 1; ++i) {
-          arguments[i] = NULL;
-        }
-      } else {
-        printf("executing command: %s\n", get_path(command));
-
-        char *arguments[0] = {};
-
-        execvp(command, arguments);
-        p_inf->return_data = malloc(sizeof(char) * (strlen("Result of execvp") + 1));
-        strcpy(p_inf->return_data, "Result of execvp");
-        p_inf->complete = true;
-        p_inf->end_point = strlen(p_inf->return_data);
-      }
+      int indicator = execvp(command, ptr->args);
+      printf("Success?: %i\n", indicator);
+      p_inf->return_data = malloc(sizeof(char) * (strlen("Result of execvp") + 1));
+      strcpy(p_inf->return_data, "Result of execvp");
+      p_inf->complete = indicator >= 0;
+      p_inf->end_point = strlen(p_inf->return_data);
 
       printf("Freeing memory\n");
       for (unsigned int i = 0; i < ptr->length; ++i) {
