@@ -2,10 +2,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include "parser.h"
 
-extern char **environ;
 const char prompt = '$';
 
 int main(void) {
@@ -18,11 +16,6 @@ int main(void) {
   char *str = NULL;
 
   while (true) { // inputs commands forever
-    if (debug) {
-      printf("%s", "[DEBUG]: ");
-      printf("%s", "Entering outer while\n");
-    }
-
     printf("%c ", prompt);
 
     while (true) { // inputs parts of commands forever
@@ -31,48 +24,23 @@ int main(void) {
       } else if (prev_size != 0) {
         // previous input line will be prepended to current input line
 
-        if (debug) {
-          printf("%s", "[DEBUG]: ");
-          printf("%s", "Build on previous line\n");
-        }
-
         str = (char *) malloc(sizeof(char) * (size + prev_size));
         memset(str, 0, size + prev_size);
 
         strcpy(str, prev_line);
         strcat(str, line);
 
-        if (debug) {
-          printf("%s", "[DEBUG]: ");
-          printf("%s", "Previous line:\n");
-          printf("    %s", prev_line);
-          printf("  %s", "Current line:\n");
-          printf("    %s", line);
-          printf("  %s", "str:\n");
-          printf("    %s", str);
-        }
-
-        if (complete_line(str, size + prev_size)) {
+        if (complete_line(str)) {
           // line is 'valid', attempt execution, break from inner while
-
-          if (debug) {
-            printf("%s", "[DEBUG]: ");
-            printf("%s", "Attempting to execute\n");
-          }
 
           prev_size = 0;
           free(prev_line);
           prev_line = NULL;
 
-          parse_and_exec(str, size + prev_size);
+          parse_and_exec(str);
           break;
         } else {
           // line is not valid,
-
-          if (debug) {
-            printf("%s", "[DEBUG]: ");
-            printf("%s", "Will iterate inner while loop again\n");
-          }
 
           prev_size = size + prev_size;
           free(prev_line);
@@ -83,23 +51,13 @@ int main(void) {
           free(str);
         }
       } else {
-        if (complete_line(line, size)) {
+        if (complete_line(line)) {
           // line is 'valid', attempt execution, break from inner while
 
-          if (debug) {
-            printf("%s", "[DEBUG]: ");
-            printf("%s", "Attempting to execute\n");
-          }
-
-          parse_and_exec(line, size + prev_size);
+          parse_and_exec(line);
           break;
         } else {
           // line is not valid,
-
-          if (debug) {
-            printf("%s", "[DEBUG]: ");
-            printf("%s", "Will iterate inner while loop again\n");
-          }
 
           prev_size = size;
           free(prev_line);
