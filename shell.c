@@ -37,7 +37,12 @@ int main(void) {
           free(prev_line);
           prev_line = NULL;
 
-          parse_and_exec(str);
+          printf("About to parse: %s\n", str);
+          bool yes = parse_and_exec(str);
+
+          if (yes) {
+            printf("Successful exec\n");
+          }
           break;
         } else {
           // line is not valid,
@@ -54,7 +59,12 @@ int main(void) {
         if (complete_line(line)) {
           // line is 'valid', attempt execution, break from inner while
 
-          parse_and_exec(line);
+          printf("About to parse: %s\n", line);
+          bool yes = parse_and_exec(line);
+
+          if (yes) {
+            printf("Successful exec\n");
+          }
           break;
         } else {
           // line is not valid,

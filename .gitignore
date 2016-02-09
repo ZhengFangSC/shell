@@ -33,3 +33,6 @@
 
 # Weird things from school
 .fuse*
+
+# Swap files
+*.swp
