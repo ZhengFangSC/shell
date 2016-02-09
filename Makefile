@@ -3,6 +3,7 @@ CFLAGS=-Wall -g
 SRCS=parser.c shell.c
 OBJS=$(SRCS:.c=.o)
 MAIN=shell
+RM=rm
 
 
 all: $(MAIN)
@@ -14,7 +15,7 @@ $(MAIN): $(OBJS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm $(MAIN) *.o
+	$(RM) $(MAIN) *.o
 
 run:
 	./$(MAIN)
