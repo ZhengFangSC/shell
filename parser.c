@@ -1,6 +1,7 @@
 #include "parser.h"
 #include <string.h>
 #include <stdio.h>
+#include <sys/wait.h>
 
 bool is_spacey(char c) {
   return (c == ' ' || c == '\t' || c == '\n' || c == '\0');
@@ -191,6 +192,7 @@ parse_info *execute(char *line, unsigned int start, unsigned int end) {
   printf("Memory allocated\n");
 
   if ((pid = fork()) == 0) {
+    printf("Child Process Start\n");
 
     get_args(ptr, line, start, end);
     printf("Got arguments\n");
@@ -250,7 +252,9 @@ parse_info *execute(char *line, unsigned int start, unsigned int end) {
     free(ptr);
     ptr = NULL;
 
+    printf("Child Process End\n");
   } else {
+    printf("Parent Process Start\n");
     int got_pid, status;
 
     while (true) {
@@ -259,6 +263,8 @@ parse_info *execute(char *line, unsigned int start, unsigned int end) {
         break;
       }
     }
+
+    printf("Parent Process End\n");
   }
 
   printf("Returning\n");
