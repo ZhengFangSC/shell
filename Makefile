@@ -1,10 +1,20 @@
-all: shell
+CC=gcc
+CFLAGS=-Wall -g
+SRCS=parser.c shell.c
+OBJS=$(SRCS:.c=.o)
+MAIN=shell
 
-shell:
-	g++ -g shell.c
+
+all: $(MAIN)
+
+$(MAIN): $(OBJS)
+	$(CC) $(CFLAGS) -o $(MAIN) $(OBJS)
+
+.c.o:
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm a.out
+	rm $(MAIN) *.o
 
 run:
-	./a.out
+	./$(MAIN)
