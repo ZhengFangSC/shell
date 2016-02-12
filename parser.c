@@ -186,60 +186,86 @@ parse_info *execute(char *line, unsigned int start, unsigned int end) {
 
   printf("Allocating memory for parse_info\n");
   parse_info *p_inf = malloc(sizeof(parse_info));
+  p_inf->return_data = NULL;
   printf("Memory allocated\n");
 
   printf("Allocating memory for exec_info\n");
   exec_info *ptr = malloc(sizeof(exec_info));
   printf("Memory allocated\n");
 
-  if ((pid = fork()) == 0) {
-    printf("Child Process Start\n");
+  get_args(ptr, line, start, end);
+  printf("Got arguments\n");
 
-    get_args(ptr, line, start, end);
-    printf("Got arguments\n");
+  if (ptr->length > 0) {
+    printf("ptr->length: %i\n", ptr->length);
 
-    if (ptr->length > 0) {
-      printf("ptr->length: %i\n", ptr->length);
+    char *command = *(ptr->args);
+    char *cmd_path = get_path(command);
+    printf("executing command: %s\n with arguments: ", cmd_path);
 
-      char *command = *(ptr->args);
-      printf("executing command: %s\n with arguments: ", get_path(command));
+    printf("Command path: %s\n", cmd_path);
+    printf("Command: %s\n", command);
+    printf("Exit: %s\n", strcmp(command, "exit") == 0 ? "True" : "False");
+    printf("Kill: %s\n", strcmp(command, "kill") == 0 ? "True" : "False");
 
-      int indicator = execvp(command, ptr->args);
-      printf("Success?: %i\n", indicator);
-      p_inf->return_data = malloc(sizeof(char) * (strlen("Result of execvp") + 1));
-      strcpy(p_inf->return_data, "Result of execvp");
-      p_inf->complete = indicator >= 0;
-      p_inf->end_point = strlen(p_inf->return_data);
+    if (strcmp(cmd_path, "") == 0) {
+      if (strcmp(command, "exit") == 0) {
+        printf("Exiting...\n");
 
-      printf("Freeing memory\n");
-      for (unsigned int i = 0; i < ptr->length; ++i) {
-        if (*(ptr->args + i)) {
-          free(*(ptr->args + i));
-          *(ptr->args + i) = NULL;
+        if (*(ptr->args + 1)) {
+          // cast string to int to exit with the proper id
+          exit(atoi(*(ptr->args + 1)));
+        } else {
+          exit(0);
+        }
+      } else if (strcmp(command, "kill") == 0) {
+          printf("Killing...\n");
+        if (*(ptr->args + 1)) {
+          printf("PID=%s\n", *(ptr->args + 1));
+          kill(SIGKILL, **(ptr->args + 1));
         }
       }
-    }
+    } else {
+      if ((pid = fork()) == 0) {
+        printf("Child Process Start\n");
 
-    printf("Freeing ptr\n");
-    free(ptr->args);
-    ptr->args = NULL;
-    free(ptr);
-    ptr = NULL;
+        int indicator = execvp(command, ptr->args);
+        printf("Success?: %i\n", indicator);
+        p_inf->return_data = malloc(sizeof(char) * (strlen("Result of execvp") + 1));
+        strcpy(p_inf->return_data, "Result of execvp");
+        p_inf->complete = indicator >= 0;
+        p_inf->end_point = strlen(p_inf->return_data);
+      } else {
+        printf("Parent Process Start\n");
+        int got_pid, status;
 
-    printf("Child Process End\n");
-  } else {
-    printf("Parent Process Start\n");
-    int got_pid, status;
+        while (true) {
+          got_pid = wait(&status);
+          if (got_pid == pid) {
+            break;
+          }
+        }
 
-    while (true) {
-      got_pid = wait(&status);
-      if (got_pid == pid) {
-        break;
+        printf("Parent Process End\n");
       }
     }
 
-    printf("Parent Process End\n");
+    printf("Freeing memory\n");
+    for (unsigned int i = 0; i < ptr->length; ++i) {
+      if (*(ptr->args + i)) {
+        free(*(ptr->args + i));
+        *(ptr->args + i) = NULL;
+      }
+    }
   }
+
+  printf("Freeing ptr\n");
+  free(ptr->args);
+  ptr->args = NULL;
+  free(ptr);
+  ptr = NULL;
+
+  printf("Child Process End\n");
 
   printf("Returning\n");
   return p_inf;
