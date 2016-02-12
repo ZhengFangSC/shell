@@ -20,7 +20,7 @@ int main(void) {
 
     while (true) { // inputs parts of commands forever
       if (getline(&line, &size, stdin) == -1 && prev_size == 0) {
-        printf("No line\n");
+        exit(0);
       } else if (prev_size != 0) {
         // previous input line will be prepended to current input line
 
